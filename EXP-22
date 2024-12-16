@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+// Function to perform Best Fit memory allocation
+void bestFit(int blockSizes[], int m, int processSizes[], int n) {
+    // Array to store the allocation of processes
+    int allocation[n];
+    
+    // Initially, all processes are not allocated
+    for (int i = 0; i < n; i++) {
+        allocation[i] = -1;
+    }
+    
+    // One by one allocate memory to each process
+    for (int i = 0; i < n; i++) {
+        int bestIndex = -1; // Index of the best block (smallest remaining size)
+        int minDiff = INT_MAX; // Minimum difference (initialize to maximum value)
+
+        // Find the block with the best fit for the current process
+        for (int j = 0; j < m; j++) {
+            // If block can accommodate the process and has the smallest remaining space
+            if (blockSizes[j] >= processSizes[i]) {
+                int diff = blockSizes[j] - processSizes[i];
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    bestIndex = j;
+                }
+            }
+        }
+
+        // If a block was found for the process
+        if (bestIndex != -1) {
+            // Allocate the block to the process
+            allocation[i] = bestIndex;
+            
+            // Reduce the size of the block by the size of the allocated process
+            blockSizes[bestIndex] -= processSizes[i];
+        }
+    }
+    
+    // Print the result of the allocation
+    printf("\nProcess No.\tProcess Size\tBlock No.\tBlock Size\n");
+    for (int i = 0; i < n; i++) {
+        if (allocation[i] != -1) {
+            printf("%d\t\t%d\t\t%d\t\t%d\n", i + 1, processSizes[i], allocation[i] + 1, blockSizes[allocation[i]]);
+        } else {
+            printf("%d\t\t%d\t\tNot Allocated\t-\n", i + 1, processSizes[i]);
+        }
+    }
+}
+
+int main() {
+    // Example block sizes and process sizes
+    int blockSizes[] = {100, 500, 200, 300, 600};  // Memory blocks available
+    int processSizes[] = {212, 417, 112, 426};    // Process size requests
+    
+    int m = sizeof(blockSizes) / sizeof(blockSizes[0]);  // Number of memory blocks
+    int n = sizeof(processSizes) / sizeof(processSizes[0]);  // Number of processes
+    
+    // Call the bestFit function to allocate memory
+    bestFit(blockSizes, m, processSizes, n);
+    
+    return 0;
+}
