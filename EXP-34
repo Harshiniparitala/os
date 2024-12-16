@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_RECORDS 100  // Maximum number of records in the file
+#define RECORD_SIZE 50   // Size of each record (in characters)
+
+// Structure to simulate a file record
+typedef struct {
+    char data[RECORD_SIZE];
+} FileRecord;
+
+// Structure to simulate the file
+typedef struct {
+    FileRecord records[MAX_RECORDS];
+    int recordCount;  // Number of records in the file
+} File;
+
+// Function to initialize the file
+void initializeFile(File *file) {
+    file->recordCount = 0;  // Initially, the file is empty
+}
+
+// Function to add a record to the file
+void addRecord(File *file, const char *data) {
+    if (file->recordCount >= MAX_RECORDS) {
+        printf("Error: File is full, cannot add more records.\n");
+        return;
+    }
+
+    // Add the record
+    strncpy(file->records[file->recordCount].data, data, RECORD_SIZE - 1);
+    file->records[file->recordCount].data[RECORD_SIZE - 1] = '\0';  // Null-terminate the string
+    file->recordCount++;
+
+    printf("Record added successfully.\n");
+}
+
+// Function to read a specific record (sequentially)
+void readRecord(File *file, int recordIndex) {
+    if (recordIndex < 0 || recordIndex >= file->recordCount) {
+        printf("Error: Invalid record index.\n");
+        return;
+    }
+
+    printf("Record %d: %s\n", recordIndex + 1, file->records[recordIndex].data);
+}
+
+// Function to display all records in the file
+void displayAllRecords(File *file) {
+    if (file->recordCount == 0) {
+        printf("The file is empty.\n");
+        return;
+    }
+
+    printf("\nDisplaying all records:\n");
+    for (int i = 0; i < file->recordCount; i++) {
+        printf("Record %d: %s\n", i + 1, file->records[i].data);
+    }
+}
+
+// Function to simulate sequential access (reading records one by one)
+void sequentialAccess(File *file) {
+    if (file->recordCount == 0) {
+        printf("The file is empty, nothing to read.\n");
+        return;
+    }
+
+    printf("\nSimulating sequential access:\n");
+    for (int i = 0; i < file->recordCount; i++) {
+        printf("Reading Record %d: %s\n", i + 1, file->records[i].data);
+    }
+}
+
+int main() {
+    File myFile;
+    initializeFile(&myFile);
+
+    // Add some records to the file
+    addRecord(&myFile, "Record 1: Employee data for John");
+    addRecord(&myFile, "Record 2: Employee data for Sarah");
+    addRecord(&myFile, "Record 3: Employee data for Mike");
+    addRecord(&myFile, "Record 4: Employee data for Anna");
+
+    // Display all records
+    displayAllRecords(&myFile);
+
+    // Read a specific record
+    int index;
+    printf("\nEnter the record number to read (1 to %d): ", myFile.recordCount);
+    scanf("%d", &index);
+    readRecord(&myFile, index - 1);  // Convert to zero-based index
+
+    // Simulate sequential access
+    sequentialAccess(&myFile);
+
+    return 0;
+}
