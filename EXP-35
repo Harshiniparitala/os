@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_BLOCKS 10  // Maximum number of blocks in the file
+#define BLOCK_SIZE 50  // Size of each data block (in characters)
+
+// Structure to represent a single data block
+typedef struct {
+    char data[BLOCK_SIZE];
+} DataBlock;
+
+// Structure to represent the file's index block (array of pointers to data blocks)
+typedef struct {
+    DataBlock *blocks[MAX_BLOCKS];
+    int blockCount;  // Number of blocks used by the file
+} IndexBlock;
+
+// Function to initialize the file (create an index block)
+void initializeFile(IndexBlock *file) {
+    file->blockCount = 0;  // Initially, the file has no data blocks
+    for (int i = 0; i < MAX_BLOCKS; i++) {
+        file->blocks[i] = NULL;  // Initialize all pointers to NULL
+    }
+}
+
+// Function to add a block to the file
+void addBlock(IndexBlock *file, const char *data) {
+    if (file->blockCount >= MAX_BLOCKS) {
+        printf("Error: File is full, cannot add more blocks.\n");
+        return;
+    }
+
+    // Allocate memory for the new block
+    DataBlock *newBlock = (DataBlock *)malloc(sizeof(DataBlock));
+    if (newBlock == NULL) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+
+    // Store data in the new block
+    strncpy(newBlock->data, data, BLOCK_SIZE - 1);
+    newBlock->data[BLOCK_SIZE - 1] = '\0';  // Null-terminate the string
+
+    // Add the block to the file's index block
+    file->blocks[file->blockCount] = newBlock;
+    file->blockCount++;
+
+    printf("Block added successfully.\n");
+}
+
+// Function to read a block from the file
+void readBlock(IndexBlock *file, int blockIndex) {
+    if (blockIndex < 0 || blockIndex >= file->blockCount) {
+        printf("Error: Invalid block index.\n");
+        return;
+    }
+
+    printf("Block %d: %s\n", blockIndex + 1, file->blocks[blockIndex]->data);
+}
+
+// Function to display all blocks in the file
+void displayFile(IndexBlock *file) {
+    if (file->blockCount == 0) {
+        printf("The file is empty.\n");
+        return;
+    }
+
+    printf("\nDisplaying file contents:\n");
+    for (int i = 0; i < file->blockCount; i++) {
+        printf("Block %d: %s\n", i + 1, file->blocks[i]->data);
+    }
+}
+
+// Function to simulate accessing the blocks in the file by their index in the index block
+void sequentialAccess(IndexBlock *file) {
+    if (file->blockCount == 0) {
+        printf("The file is empty, nothing to read.\n");
+        return;
+    }
+
+    printf("\nSimulating sequential access:\n");
+    for (int i = 0; i < file->blockCount; i++) {
+        printf("Reading Block %d: %s\n", i + 1, file->blocks[i]->data);
+    }
+}
+
+int main() {
+    IndexBlock myFile;
+    initializeFile(&myFile);
+
+    // Add some blocks to the file
+    addBlock(&myFile, "This is the first block of the file.");
+    addBlock(&myFile, "This is the second block, containing more data.");
+    addBlock(&myFile, "This block holds additional information.");
+    addBlock(&myFile, "Final block with the last part of the data.");
+
+    // Display all blocks in the file
+    displayFile(&myFile);
+
+    // Read a specific block
+    int index;
+    printf("\nEnter the block number to read (1 to %d): ", myFile.blockCount);
+    scanf("%d", &index);
+    readBlock(&myFile, index - 1);  // Convert to zero-based index
+
+    // Simulate sequential access
+    sequentialAccess(&myFile);
+
+    return 0;
+}
